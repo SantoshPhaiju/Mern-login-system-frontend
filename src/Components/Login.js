@@ -70,6 +70,8 @@ const Login = () => {
       setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
+  const [validationErr, setValidationErr] = useState("");
+
   return (
     <>
       <div className="mt-10">
@@ -91,7 +93,19 @@ const Login = () => {
                 className="border-2 outline-blue-500 py-1 my-1 px-3 text-black rounded-sm outline-1 w-full "
                 value={credentials.email}
                 onChange={onChange}
+                pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+                onBlur={(e) => {
+                  if(!e.target.value.match(e.target.pattern)){
+                    console.log("Email is invalid")
+                    setValidationErr("Invalid email");
+                  }else{
+                    setValidationErr("");
+                  }
+                  console.log(e.target.pattern)
+                }}
+                required
               />
+              {validationErr && <p className="text-red-800 text-center">{validationErr}</p>}
             </div>
             <div className="form-input my-3">
               <label htmlFor="password" className="text-xl font-poppins">
@@ -106,6 +120,7 @@ const Login = () => {
                 className="border-2 outline-blue-500 py-1 px-3 my-1 text-black rounded-sm outline-1 w-full"
                 value={credentials.password}
                 onChange={onChange}
+                required
               />
             </div>
             <p className="text-blue-600 underline"><Link to="/forgetpassword">Forget password?</Link></p>

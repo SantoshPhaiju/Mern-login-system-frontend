@@ -1,11 +1,19 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
     username: "",
     email: "",
     password: "",
     cpassword: "",
+  });
+    const [validationErr, setValidationErr] = useState({
+    usernameErr: "",
+    emailErr: "",
+    passwordErr: "",
+    cpasswordErr: ""
   });
   const { username, email, password, cpassword } = credentials;
   const host = `http://localhost:8000`;
@@ -26,8 +34,13 @@ const Register = () => {
         });
         const data = await response.json();
         console.log(data);
-        if (data) {
-          console.log("REgistration successfull");
+        if (data.success === true) {
+          navigate("/login");
+        }
+        if(data.success === false){
+          setValidationErr({...validationErr, emailErr: "This Email is already in use. Please use another email"})
+        }else{
+          setValidationErr({...validationErr, emailErr: ""})
         }
       }
     } else {
@@ -40,6 +53,9 @@ const Register = () => {
   const onChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
+
+ 
+
   return (
     <>
       <div className="mt-10">
@@ -62,7 +78,24 @@ const Register = () => {
                 className="border-2 outline-blue-500 py-1 my-1 px-3 text-black rounded-sm outline-1 w-full "
                 value={credentials.username}
                 onChange={onChange}
+                pattern="^[a-zA-Z0-9]{3,30}$"
+                onBlur={(e) => {
+                  if (!e.target.value.match(e.target.pattern)) {
+                    setValidationErr({
+                      ...validationErr,
+                      usernameErr:
+                        "Username must include more than 2 character and it cannot be blank and cannot contain whitespaces",
+                    });
+                  } else {
+                    setValidationErr({ ...validationErr, usernameErr: "" });
+                  }
+                }}
               />
+              {validationErr.usernameErr && (
+                <p className="text-red-800 text-center text-sm">
+                  {validationErr.usernameErr}
+                </p>
+              )}
             </div>
             <div className="form-input my-3">
               <label htmlFor="email" className="text-xl font-poppins">
@@ -78,7 +111,25 @@ const Register = () => {
                 className="border-2 outline-blue-500 py-1 my-1 px-3 text-black rounded-sm outline-1 w-full "
                 value={credentials.email}
                 onChange={onChange}
+                pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+                onBlur={(e) => {
+                  if (!e.target.value.match(e.target.pattern)) {
+                    console.log("Email is invalid");
+                    setValidationErr({
+                      ...validationErr,
+                      emailErr: "Invalid email",
+                    });
+                  } else {
+                    setValidationErr({ ...validationErr, emailErr: "" });
+                  }
+                  console.log(e.target.pattern);
+                }}
               />
+              {validationErr.emailErr && (
+                <p className="text-red-800 text-center text-sm">
+                  {validationErr.emailErr}
+                </p>
+              )}
             </div>
             <div className="form-input my-3">
               <label htmlFor="password" className="text-xl font-poppins">
@@ -94,7 +145,24 @@ const Register = () => {
                 className="border-2 outline-blue-500 py-1 px-3 my-1 text-black rounded-sm outline-1 w-full"
                 value={credentials.password}
                 onChange={onChange}
+                pattern="^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$"
+                onBlur={(e) => {
+                  if (!e.target.value.match(e.target.pattern)) {
+                    setValidationErr({
+                      ...validationErr,
+                      passwordErr:
+                        "Password should be 8-20 characters and include at least 1 letter, 1 number and 1 special character",
+                    });
+                  } else {
+                    setValidationErr({ ...validationErr, passwordErr: "" });
+                  }
+                }}
               />
+              {validationErr.passwordErr && (
+                <p className="text-red-800 text-center text-sm">
+                  {validationErr.passwordErr}
+                </p>
+              )}
             </div>
             <div className="form-input my-3">
               <label htmlFor="cpassword" className="text-xl font-poppins">
@@ -111,7 +179,19 @@ const Register = () => {
                 className="border-2 outline-blue-500 py-1 px-3 my-1 text-black rounded-sm outline-1 w-full"
                 value={credentials.cpassword}
                 onChange={onChange}
+                onBlur={(e) =>{
+                  if(credentials.password !== credentials.cpassword){
+                    setValidationErr({...validationErr, cpasswordErr: "Password and confirm password do not match"})
+                  }else{
+                    setValidationErr({...validationErr, cpasswordErr: ""})
+                  }
+                }}
               />
+              {validationErr.cpasswordErr && (
+                <p className="text-red-800 text-center text-sm">
+                  {validationErr.cpasswordErr}
+                </p>
+              )}
             </div>
             <div className="button flex justify-center">
               <button
